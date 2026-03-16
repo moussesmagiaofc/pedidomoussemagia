@@ -1,0 +1,299 @@
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Mousse Magia</title>
+
+<style>
+
+body{
+font-family: Arial, sans-serif;
+background: radial-gradient(circle,#1a1a1a,#000000);
+margin:0;
+color:white;
+text-align:center;
+}
+
+.logo{
+width:200px;
+height:200px;
+margin-top:40px;
+border-radius:50%;
+object-fit:cover;
+animation:flutuar 3s ease-in-out infinite;
+filter: drop-shadow(0 0 20px gold);
+}
+
+@keyframes flutuar{
+0%{transform:translateY(0)}
+50%{transform:translateY(-12px)}
+100%{transform:translateY(0)}
+}
+
+.titulo{
+font-size:40px;
+color:gold;
+margin-top:10px;
+}
+
+.sub{
+color:#ffd700;
+margin-bottom:30px;
+}
+
+.container{
+background:#111;
+max-width:520px;
+margin:auto;
+padding:30px;
+border-radius:15px;
+box-shadow:0 0 25px rgba(255,215,0,0.3);
+}
+
+input,select,textarea{
+width:100%;
+padding:12px;
+margin-top:10px;
+border-radius:8px;
+border:none;
+font-size:16px;
+}
+
+textarea{
+resize:none;
+height:80px;
+}
+
+button{
+background:linear-gradient(45deg,#ffd700,#ffb700);
+color:black;
+border:none;
+padding:14px;
+width:100%;
+font-size:17px;
+border-radius:10px;
+margin-top:15px;
+cursor:pointer;
+font-weight:bold;
+}
+
+button:hover{
+transform:scale(1.05);
+}
+
+.total{
+font-size:22px;
+margin-top:15px;
+color:gold;
+font-weight:bold;
+}
+
+.lista{
+margin-top:20px;
+text-align:left;
+}
+
+.item{
+background:#1a1a1a;
+padding:12px;
+border-radius:8px;
+margin-top:10px;
+}
+
+.remover{
+background:#ff4d4d;
+color:white;
+border:none;
+padding:6px 10px;
+border-radius:6px;
+margin-top:5px;
+cursor:pointer;
+}
+
+footer{
+margin-top:40px;
+color:#aaa;
+}
+
+</style>
+</head>
+
+<body>
+
+<img src="logo.png" class="logo">
+
+<div class="titulo">Mousse Magia</div>
+<div class="sub">✨ A magia em potinhos ✨</div>
+
+<div class="container">
+
+<h2>🍨 Monte seu pedido</h2>
+
+<input id="nome" placeholder="👤 Seu nome">
+
+<input id="telefone" placeholder="📱 Telefone">
+
+<input id="endereco" placeholder="📍 Endereço de entrega">
+
+<textarea id="observacao" placeholder="📝 Observação (opcional)"></textarea>
+
+<select id="sabor">
+<option value="Limão">🍋 Mousse de Limão</option>
+<option value="Maracujá">🥭 Mousse de Maracujá</option>
+</select>
+
+<select id="tamanho">
+<option value="8">🥄 Pote 140ml - R$8</option>
+<option value="10">🍨 Pote 200ml - R$10</option>
+</select>
+
+<input type="number" id="quantidade" value="1" min="1">
+
+<button onclick="adicionarCarrinho()">
+➕ Adicionar ao Carrinho
+</button>
+
+<div class="lista" id="carrinho"></div>
+
+<div class="total" id="total">
+Total: R$0
+</div>
+
+<select id="pagamento">
+<option>💵 Dinheiro</option>
+<option>💳 Cartão</option>
+<option>📲 Pix</option>
+</select>
+
+<button onclick="enviarPedido()">
+📲 Finalizar Pedido
+</button>
+
+</div>
+
+<footer>
+© 2026 Mousse Magia
+</footer>
+
+<script>
+
+let carrinho=[]
+let total=0
+
+function adicionarCarrinho(){
+
+let sabor=document.getElementById("sabor").value
+let tamanho=document.getElementById("tamanho")
+let tamanhoTexto=tamanho.options[tamanho.selectedIndex].text
+let preco=parseFloat(tamanho.value)
+
+let qtd=parseInt(document.getElementById("quantidade").value)
+
+if(!qtd || qtd<1){
+alert("Escolha uma quantidade válida")
+return
+}
+
+let subtotal=preco*qtd
+total+=subtotal
+
+carrinho.push({
+sabor:sabor,
+tamanho:tamanhoTexto,
+qtd:qtd,
+subtotal:subtotal
+})
+
+renderCarrinho()
+
+}
+
+function renderCarrinho(){
+
+let area=document.getElementById("carrinho")
+area.innerHTML=""
+
+carrinho.forEach((item,index)=>{
+
+area.innerHTML+=`
+
+<div class="item">
+🍮 ${item.sabor}<br>
+📦 ${item.tamanho}<br>
+🔢 ${item.qtd} unidades<br>
+💰 R$${item.subtotal}
+<br>
+<button class="remover" onclick="removerItem(${index})">
+🗑 Remover
+</button>
+</div>
+
+`
+
+})
+
+document.getElementById("total").innerHTML="Total: R$"+total.toFixed(2)
+
+}
+
+function removerItem(index){
+
+total-=carrinho[index].subtotal
+carrinho.splice(index,1)
+
+renderCarrinho()
+
+}
+
+function enviarPedido(){
+
+if(carrinho.length===0){
+alert("Adicione itens ao carrinho")
+return
+}
+
+let nome=document.getElementById("nome").value
+let telefone=document.getElementById("telefone").value
+let endereco=document.getElementById("endereco").value
+let observacao=document.getElementById("observacao").value
+let pagamento=document.getElementById("pagamento").value
+
+let lista=""
+
+carrinho.forEach(item=>{
+
+lista+=
+"🍮 "+item.sabor+"\n"+
+"📦 "+item.tamanho+"\n"+
+"🔢 "+item.qtd+" unidades\n"+
+"💰 R$"+item.subtotal+"\n\n"
+
+})
+
+let msg=
+
+"🍨 *Pedido - Mousse Magia*\n\n"+
+"👤 Cliente: "+nome+"\n"+
+"📱 Telefone: "+telefone+"\n"+
+"📍 Endereço: "+endereco+"\n"+
+"📝 Observação: "+observacao+"\n\n"+
+lista+
+"💰 *Total:* R$"+total.toFixed(2)+"\n"+
+"💳 Pagamento: "+pagamento+"\n\n"+
+"✨ Pedido enviado pelo site!"
+
+let numero="5586998120194"
+
+let url="https://wa.me/"+numero+"?text="+encodeURIComponent(msg)
+
+if(confirm("Enviar pedido para a Mousse Magia?")){
+window.open(url)
+}
+
+}
+
+</script>
+
+</body>
+</html>
