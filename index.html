@@ -1,0 +1,284 @@
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Mousse Magia</title>
+
+<style>
+
+body{
+font-family: Arial, sans-serif;
+background: radial-gradient(circle,#1a1a1a,#000000);
+margin:0;
+color:white;
+text-align:center;
+}
+
+.logo{
+width:200px;
+height:200px;
+margin-top:40px;
+border-radius:50%;
+object-fit:cover;
+animation:flutuar 3s ease-in-out infinite;
+}
+
+@keyframes flutuar{
+0%{transform:translateY(0)}
+50%{transform:translateY(-12px)}
+100%{transform:translateY(0)}
+}
+
+.container{
+background:#111;
+max-width:520px;
+margin:auto;
+padding:30px;
+border-radius:15px;
+box-shadow:0 0 25px rgba(255,215,0,0.3);
+}
+
+input,select,textarea{
+width:100%;
+padding:12px;
+margin-top:10px;
+border-radius:8px;
+border:none;
+font-size:16px;
+}
+
+textarea{
+resize:none;
+height:80px;
+}
+
+button{
+background:linear-gradient(45deg,#ffd700,#ffb700);
+color:black;
+border:none;
+padding:14px;
+width:100%;
+font-size:17px;
+border-radius:10px;
+margin-top:15px;
+cursor:pointer;
+font-weight:bold;
+}
+
+button:hover{
+transform:scale(1.05);
+}
+
+.total{
+font-size:22px;
+margin-top:15px;
+color:gold;
+font-weight:bold;
+}
+
+.item{
+background:#1a1a1a;
+padding:12px;
+border-radius:8px;
+margin-top:10px;
+}
+
+.pix-box{
+display:none;
+margin-top:20px;
+background:#1a1a1a;
+padding:15px;
+border-radius:10px;
+}
+
+footer{
+margin-top:40px;
+color:#aaa;
+}
+
+</style>
+</head>
+
+<body>
+
+<img src="logo.png" class="logo">
+
+<h1>Mousse Magia</h1>
+<p>✨ A magia em potinhos ✨</p>
+
+<div class="container">
+
+<input id="nome" placeholder="👤 Seu nome">
+<input id="telefone" placeholder="📱 Telefone">
+<input id="endereco" placeholder="📍 Endereço">
+<textarea id="observacao" placeholder="📝 Observação (opcional)"></textarea>
+
+<select id="sabor">
+<option value="Limão">🍋 Mousse de Limão</option>
+<option value="Maracujá">🥭 Mousse de Maracujá</option>
+<option value="Abacaxi">🍍 Mousse de Abacaxi</option>
+</select>
+
+<select id="tamanho">
+<option value="8">🥄 Pote 140ml - R$8</option>
+<option value="9">🍨 Pote 200ml - R$9</option>
+</select>
+
+<input type="number" id="quantidade" value="1" min="1">
+
+<button onclick="adicionar()">➕ Adicionar ao Carrinho</button>
+
+<div id="carrinho"></div>
+
+<div class="total" id="total">Total: R$0</div>
+
+<select id="pagamento" onchange="verPix()">
+<option>💵 Dinheiro</option>
+<option>💳 Cartão</option>
+<option>📲 Pix</option>
+</select>
+
+<div class="pix-box" id="pixBox">
+
+<h3>Pagamento via Pix</h3>
+
+<p><b>Chave Pix:</b></p>
+<p id="chavePix">279f5298-ad49-4f45-986c-ec5d99630fb0</p>
+
+<button onclick="copiarPix()">📋 Copiar chave</button>
+
+<br><br>
+
+<img id="qrCode" width="200">
+
+</div>
+
+<button onclick="enviar()">📲 Finalizar Pedido</button>
+
+</div>
+
+<footer>
+© 2026 Mousse Magia
+</footer>
+
+<script>
+
+let carrinho=[]
+let total=0
+const chavePix="279f5298-ad49-4f45-986c-ec5d99630fb0"
+
+function adicionar(){
+
+let sabor=document.getElementById("sabor").value
+let tamanho=document.getElementById("tamanho")
+let texto=tamanho.options[tamanho.selectedIndex].text
+let preco=parseFloat(tamanho.value)
+let qtd=parseInt(document.getElementById("quantidade").value)
+
+if(!qtd || qtd<1){
+alert("Escolha uma quantidade válida")
+return
+}
+
+let subtotal=preco*qtd
+total+=subtotal
+
+carrinho.push({sabor,texto,qtd,subtotal})
+
+render()
+}
+
+function render(){
+
+let html=""
+
+carrinho.forEach((i)=>{
+html+=`
+<div class="item">
+🍮 ${i.sabor}<br>
+📦 ${i.texto}<br>
+🔢 ${i.qtd} unidades<br>
+💰 R$${i.subtotal}
+</div>`
+})
+
+document.getElementById("carrinho").innerHTML=html
+document.getElementById("total").innerHTML="Total: R$"+total.toFixed(2)
+
+gerarQR()
+}
+
+function verPix(){
+
+let tipo=document.getElementById("pagamento").value
+
+document.getElementById("pixBox").style.display =
+tipo.includes("Pix") ? "block" : "none"
+
+gerarQR()
+}
+
+function copiarPix(){
+navigator.clipboard.writeText(chavePix)
+alert("Chave Pix copiada!")
+}
+
+function gerarQR(){
+
+if(total<=0) return
+
+let payload =
+`00020126580014BR.GOV.BCB.PIX0136${chavePix}520400005303986540${total.toFixed(2)}5802BR5920Mousse Magia6009Teresina62070503***6304`
+
+let url =
+"https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(payload)
+
+document.getElementById("qrCode").src=url
+}
+
+function enviar(){
+
+if(carrinho.length===0){
+alert("Adicione itens ao carrinho")
+return
+}
+
+let nome=document.getElementById("nome").value
+let telefone=document.getElementById("telefone").value
+let endereco=document.getElementById("endereco").value
+let observacao=document.getElementById("observacao").value
+let pagamento=document.getElementById("pagamento").value
+
+let lista=""
+
+carrinho.forEach(item=>{
+lista+=
+"🍮 "+item.sabor+"\n"+
+"📦 "+item.texto+"\n"+
+"🔢 "+item.qtd+" unidades\n"+
+"💰 R$"+item.subtotal+"\n\n"
+})
+
+let msg=
+"🍨 *Pedido - Mousse Magia*\n\n"+
+"👤 Cliente: "+nome+"\n"+
+"📱 Telefone: "+telefone+"\n"+
+"📍 Endereço: "+endereco+"\n"+
+"📝 Observação: "+observacao+"\n\n"+
+lista+
+"💰 *Total:* R$"+total.toFixed(2)+"\n"+
+"💳 Pagamento: "+pagamento+"\n\n"+
+"✨ Pedido enviado pelo site!"
+
+let numero="5586998120194"
+
+let url="https://wa.me/"+numero+"?text="+encodeURIComponent(msg)
+
+window.open(url)
+}
+
+</script>
+
+</body>
+</html>
